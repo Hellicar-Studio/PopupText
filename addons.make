@@ -1,4 +1,2 @@
 ofxEasing
-ofxFontStash
 ofxGui
-ofxRay

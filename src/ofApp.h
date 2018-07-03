@@ -2,8 +2,6 @@
 
 #include "ofMain.h"
 #include "ofxGui.h"
-#include "ofxRay.h"
-#include "ofxFontStash.h"
 #include "Triangulator.h"
 #include "ofxEasing.h"
 #include "FlipText.hpp"
