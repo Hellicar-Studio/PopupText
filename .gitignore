@@ -96,7 +96,8 @@ Desktop.ini
 *.mp3
 *.png
 *.jpeg
-# *.jpg
+*.jpg
+!/assets/*.jpg
 *.gif
 *.avi
 
