@@ -7,6 +7,7 @@ Popup text is an app for rendering text inspired by a cool video of text popping
 ### Addons:
 
 ofxGui - Comes with base of
+
 [ofxEasing](https://github.com/arturoc/ofxEasing)
 
 
