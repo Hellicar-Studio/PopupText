@@ -1,11 +1,30 @@
 #include "ofApp.h"
 
+string toUpperCase ( string str )
+{
+    string strUpper = "";
+    
+    for( int i=0; i<str.length(); i++ )
+    {
+        strUpper += toupper( str[ i ] );
+    }
+    
+    return strUpper;
+}
+
+const string Xanadu = "In Xanadu did Kubla Khan\nA stately pleasure dome decree:\nWhere Alph, the sacred river, ran\nThrough caverns measureless to man\nDown to a sunless sea.\nSo twice five miles of fertile ground\nWith walls and towers were girdled round:\nAnd there were gardens bright with sinuous rills,\nWhere blossomed many an incense-bearing tree;\nAnd here were forests ancient as the hills,\nEnfolding sunny spots of greenery.";
+
+const string Slough = "Come friendly bombs and fall on Slough!\nIt isn't fit for humans now,\nThere isn't grass to graze a cow.\nSwarm over, Death!";
+
+const string HS = "Hellicar\n     Studio";
+
+const string theRaven = "Once upon a midnight dreary, while I pondered, weak and weary,\nOver many a quaint and curious volume of forgotten lore-\nWhile I nodded, nearly napping, suddenly there came a tapping,\nAs of some one gently rapping, rapping at my chamber door.\n\"’Tis some visitor,\" I muttered, \"tapping at my chamber door—\nOnly this and nothing more.\"";
 
 //--------------------------------------------------------------
 void ofApp::setup(){
     font.load("fonts/HeveticaBold.ttf", 100, true, true, true);
     
-    ofColor frontColor = ofColor(255, 250, 240);
+    frontColor = ofColor(255, 250, 240);
     
     ofSetBackgroundColor(frontColor);
     
@@ -29,47 +48,23 @@ void ofApp::setup(){
     
     initTime = 0;
     
-    words.resize(14);
+//    words.resize(14);
     
     for(int i = 0; i < words.size(); i++) {
         words[i].font = &font;
         words[i].color = frontColor;
     }
     
-    int kerning = 100;
-    int x = -500;
-    
-    int y = 200;
-    
-    words[0].init("H", ofVec3f(x, y, 0));
-    x+=kerning;
-    words[1].init("E", ofVec3f(x, y, 0));
-    x+=kerning;
-    words[2].init("L", ofVec3f(x, y, 0));
-    x+=kerning;
-    words[3].init("L", ofVec3f(x, y, 0));
-    x+=kerning;
-    words[4].init("I", ofVec3f(x, y, 0));
-    x+=kerning;
-    words[5].init("C", ofVec3f(x, y, 0));
-    x+=kerning;
-    words[6].init("A", ofVec3f(x, y, 0));
-    x+=kerning;
-    words[7].init("R", ofVec3f(x, y, 0));
-    
-    x = -200;
-    y = 0;
-    words[8].init("S", ofVec3f(x, y, 0));
-    x+=kerning;
-    words[9].init("T", ofVec3f(x, y, 0));
-    x+=kerning;
-    words[10].init("U", ofVec3f(x, y, 0));
-    x+=kerning;
-    words[11].init("D", ofVec3f(x, y, 0));
-    x+=kerning;
-    words[12].init("I", ofVec3f(x, y, 0));
-    x+=kerning;
-    words[13].init("O", ofVec3f(x, y, 0));
+    float x = -500;
+    float y = 200;
+    float yGap = -200;
+    addVerse(toUpperCase(theRaven), ofVec3f(x, y, 0));
+//    addText("It isn't fit for humans now, ", ofVec3f(x, y+=yGap, 0));
+//    addText("There isn't grass to graze a cow.", ofVec3f(x, y+=yGap, 0));
+//    addText("Swarm over, Death!", ofVec3f(x, y+=yGap, 0));
+//    addText("It isn't fit for humans now, ", ofVec3f(x, y+=yGap, 0));
+//    addText("It isn't fit for humans now, ", ofVec3f(x, y+=yGap, 0));
+//    addText("It isn't fit for humans now, ", ofVec3f(x, y+=yGap, 0));
 
 }
 
@@ -120,7 +115,6 @@ void ofApp::draw(){
         }
         
         shadowMesh.draw();
-        
     }
     
     ofSetColor(0, 0, 255);
@@ -132,6 +126,37 @@ void ofApp::draw(){
 }
 
 //--------------------------------------------------------------
+void ofApp::addVerse(string text, ofVec3f offset) {
+    vector<string> lines = ofSplitString(text, "\n");
+    for(int i = 0; i < lines.size(); i++) {
+        addLine(lines[i], offset);
+        offset.y += -200;
+    }
+//    float kerning = 100;
+//    for(int i = 0; i < text.size(); i++) {
+//        FlipText word;
+//        word.font = &font;
+//        word.color = frontColor;
+//        word.init(string(1, text[i]), offset);
+//        offset.x += kerning;
+//        words.push_back(word);
+//    }
+}
+
+//--------------------------------------------------------------
+void ofApp::addLine(string text, ofVec3f offset) {
+    float kerning = 100;
+    for(int i = 0; i < text.size(); i++) {
+        FlipText word;
+        word.font = &font;
+        word.color = frontColor;
+        word.init(string(1, text[i]), offset);
+        offset.x += kerning;
+        words.push_back(word);
+    }
+}
+
+//--------------------------------------------------------------
 ofVec3f ofApp::planeLineIntersection(Plane p, Line l) {
     ofVec3f p3 = p.p;
     ofVec3f N = p.n;
@@ -139,18 +164,10 @@ ofVec3f ofApp::planeLineIntersection(Plane p, Line l) {
     ofVec3f p2 = l.p2;
     float denom = p.n.dot(p2 - p1);
     if(abs(denom) < 0.00001) {
-//        cout<< "small dot!"<<endl;
         denom = (denom > 0) ? 0.00001 : -0.00001;
     }
     float u = p.n.dot(p3 - p1) / denom;
     
-//    cout<<u<<endl;
-    
-//    if(abs(u) > 600) {
-//        cout << "big u!" << endl;
-//
-//        u = (u > 0) ? 600 : -600;
-//    }
     ofVec3f i = u*p2 + (1-u) * p1;
     return i;
 }

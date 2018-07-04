@@ -37,13 +37,9 @@ void FlipText::update() {
         auto now = ofGetElapsedTimef();
         auto endTime = initTime + duration;
         
-//        if(endTime + 1.f < now){
-//            initTime = ofGetElapsedTimef();
-//            endTime = initTime + duration;
-//        }
         theta = ofxeasing::map_clamp(now, initTime, endTime, theta.getMin(), theta.getMax(), ofxeasing::elastic::easeOut);
     } else {
-        auto duration = 3.f; // three seconds
+        auto duration = 1.f; // three seconds
         auto now = ofGetElapsedTimef();
         auto endTime = initTime + duration;
         
