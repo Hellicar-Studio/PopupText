@@ -46,29 +46,57 @@ void FlipText::update() {
     }
 }
 
-ofMesh FlipText::draw() {
+ofMatrix4x4 FlipText::draw() {
 //    ofMesh drawMesh = mesh;
     
 //    ofSetColor(0, 255, 0);
+    ofPushMatrix();
     Line rotationLine;
     rotationLine.p1 = ofVec3f(-500, rotationYPos, 0);
     rotationLine.p2 = ofVec3f(500, rotationYPos + 0.0001, 0);
     
-//    ofTranslate(0, rotationYPos);
-//    ofRotate(theta);
-//    ofTranslate(0, -rotationYPos);
+    ofTranslate(0, rotationYPos);
+    ofRotate(theta * 180 / PI, 1, 0, 0);
+    ofTranslate(0, -rotationYPos);
+    mesh.draw();
+//    ofMesh drawMesh = mesh;
     
-    ofMesh drawMesh = mesh;
+
+//    for(int i = 0; i < mesh.getNumVertices(); i++) {
+//        ofVec3f v = mesh.getVertex(i);
+//        v = rotatePointAboutVector(theta, v, rotationLine.p1, rotationLine.p2);
+//        drawMesh.setVertex(i, v);
+//    }
+//    rotate->begin();
+//    rotate->setUniform3f("p1", rotationLine.p1);
+//    rotate->setUniform3f("p2", rotationLine.p2);
+//    rotate->setUniform1f("theta", theta);
+//    mesh.draw();
+//    rotate->end();
     
-    for(int i = 0; i < mesh.getNumVertices(); i++) {
-        ofVec3f v = mesh.getVertex(i);
-        v = rotatePointAboutVector(theta, v, rotationLine.p1, rotationLine.p2);
-        drawMesh.setVertex(i, v);
-    }
+//    drawMesh.draw();
     
-    drawMesh.draw();
+    ofPopMatrix();
     
-    return mesh;
+    return getRotationMatrix(theta, rotationLine.p1, rotationLine.p2);
+}
+
+ofMatrix4x4 FlipText::getRotationMatrix(float theta, ofVec3f p1, ofVec3f p2) {
+    ofVec3f l = p2 - p1;
+    ofVec3f u = l.normalize();
+    float a = u.x;
+    float b = u.y;
+    float c = u.z;
+    float d = sqrt(b*b + c*c);
+    ofMatrix4x4 T = ofMatrix4x4(1, 0, 0, -p1.x, 0, 1, 0, -p1.y, 0, 0, 1, -p1.z, 0, 0, 0, 1);
+    ofMatrix4x4 Rx = ofMatrix4x4(1, 0, 0, 0, 0, c/d, -b/d, 0, 0, b/d, c/d, 0, 0, 0, 0, 1);
+    ofMatrix4x4 Ry = ofMatrix4x4(d, 0, -a, 0, 0, 1, 0, 0, a, 0, d, 0, 0, 0, 0, 1);
+    ofMatrix4x4 Rz = ofMatrix4x4(cos(theta), -sin(theta), 0, 0, sin(theta), cos(theta), 0, 0, 0, 0, 1, 0, 0, 0, 0, 1);
+    
+    ofMatrix4x4 Pt = T.getInverse() * Rx.getInverse() * Ry.getInverse() * Rz * Ry * Rx * T;//* ofVec4f(p.x, p.y, p.z, 1);
+    return Pt;
+    
+    //eturn ofVec3f(Pt.x, Pt.y, Pt.z);
 }
 
 ofVec3f FlipText::rotatePointAboutVector(float theta, ofVec3f p, ofVec3f p1, ofVec3f p2) {

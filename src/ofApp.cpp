@@ -41,26 +41,21 @@ void ofApp::setup(){
 
     gui.loadFromFile(settingsPath);
     
-    cam.setPosition(-480, -402, 221);
+//    cam.setPosition(-480, -402, 221);
     cam.lookAt(ofVec3f(0, 0, 0));
-            
-    for(int i = 0; i < words.size(); i++) {
-        words[i].font = &font;
-        words[i].color = ofColor(127);
-    }
     
     shadow.load("shaders/shadow");
     
-    float x = -500;
-    float y = 200;
+    float x = -2000;
+    float y = 1000;
     float yGap = -200;
-    addVerse(toUpperCase(theRaven), ofVec3f(x, y, 0));
+    addVerse(toUpperCase(theRaven), ofVec3f(x, y, 0.01));
 }
 
 //--------------------------------------------------------------
 void ofApp::update(){
     p.n = planeNormal;
-    lightSource.set(ofVec3f(lightSource.get().x, lightSource.get().y, ofMap(sin(ofGetElapsedTimef()), -1.0, 1.0, 200, 250)));
+//    lightSource.set(ofVec3f(lightSource.get().x, lightSource.get().y, ofMap(sin(ofGetElapsedTimef()), -1.0, 1.0, 200, 250)));
     
     for(int i = 0; i < words.size(); i++) {
         words[i].update();
@@ -70,25 +65,28 @@ void ofApp::update(){
 //--------------------------------------------------------------
 void ofApp::draw(){
     
-    ofEnableDepthTest();
+//    ofEnableDepthTest();
     
     cam.begin();
     
     for(int i = 0; i < words.size(); i++) {
-        words[i].draw();
+        ofMatrix4x4 m = words[i].draw();
         
         shadow.begin();
         shadow.setUniform3f("planeCenter", p.p);
         shadow.setUniform3f("planeNormal", p.n);
         shadow.setUniform3f("lightPos", lightSource.get());
+        shadow.setUniformMatrix4f("rotationMatrix", m);
         ofSetColor(255);
-        words[i].draw();
+        words[i].mesh.draw();
         shadow.end();
+        
+        words[i].draw();
     }
         
     cam.end();
     
-    ofDisableDepthTest();
+//    ofDisableDepthTest();
     gui.draw();
     
     ofDrawBitmapStringHighlight(ofToString(ofGetFrameRate()), ofGetWidth()-100, ofGetHeight()-10);

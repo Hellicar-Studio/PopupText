@@ -17,8 +17,10 @@ class FlipText {
 public:
     void init(string _text, ofVec3f offset);
     void update();
-    ofMesh draw();
+    ofMatrix4x4 draw();
     ofVec3f rotatePointAboutVector(float theta, ofVec3f p, ofVec3f p1, ofVec3f p2);
+    ofMatrix4x4 getRotationMatrix(float theta, ofVec3f p1, ofVec3f p2);
+
     
     ofVec3f offset;
     
@@ -33,7 +35,7 @@ public:
     float rotationYPos;
     
     ofColor color = ofColor(255);
-    
+        
     bool active;
 };
 

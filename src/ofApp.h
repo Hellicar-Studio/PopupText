@@ -38,7 +38,7 @@ class ofApp : public ofBaseApp{
     
         ofMesh shadowMesh;
 
-        ofShader shadow;
+        ofShader shadow, rotate;
     
         vector<FlipText> words;
     
