@@ -38,34 +38,23 @@ void ofApp::setup(){
     gui.setup("Controls", settingsPath);
     gui.add(lightSource.set("Light Pos", ofVec3f(-300, -200, 140), ofVec3f(-1000, -1000, -1000), ofVec3f(1000, 1000, 1000)));
     gui.add(planeNormal.set("Plane Normal", ofVec3f(0, 0, 1), ofVec3f(-1, -1, -1), ofVec3f(1, 1, 1)));
-    gui.add(theta.set("Angle", 0, 0, PI/2));
-    gui.add(rotationYPos.set("Rotation Vec y", 0, -55, -50));
 
     gui.loadFromFile(settingsPath);
     
     cam.setPosition(-480, -402, 221);
     cam.lookAt(ofVec3f(0, 0, 0));
-    
-    initTime = 0;
-    
-//    words.resize(14);
-    
+            
     for(int i = 0; i < words.size(); i++) {
         words[i].font = &font;
-        words[i].color = frontColor;
+        words[i].color = ofColor(127);
     }
+    
+    shadow.load("shaders/shadow");
     
     float x = -500;
     float y = 200;
     float yGap = -200;
     addVerse(toUpperCase(theRaven), ofVec3f(x, y, 0));
-//    addText("It isn't fit for humans now, ", ofVec3f(x, y+=yGap, 0));
-//    addText("There isn't grass to graze a cow.", ofVec3f(x, y+=yGap, 0));
-//    addText("Swarm over, Death!", ofVec3f(x, y+=yGap, 0));
-//    addText("It isn't fit for humans now, ", ofVec3f(x, y+=yGap, 0));
-//    addText("It isn't fit for humans now, ", ofVec3f(x, y+=yGap, 0));
-//    addText("It isn't fit for humans now, ", ofVec3f(x, y+=yGap, 0));
-
 }
 
 //--------------------------------------------------------------
@@ -76,7 +65,6 @@ void ofApp::update(){
     for(int i = 0; i < words.size(); i++) {
         words[i].update();
     }
-
 }
 
 //--------------------------------------------------------------
@@ -86,43 +74,24 @@ void ofApp::draw(){
     
     cam.begin();
     
-    ofSetColor(255);
-//    p.draw();
-    
-    ofSetColor(0);
-    
-    ofSetColor(255, 255, 0);
-//    ofDrawSphere(lightSource, 10);
-    
     for(int i = 0; i < words.size(); i++) {
-        ofMesh m = words[i].draw();
+        words[i].draw();
         
-        vector<ofVec3f> verts = m.getVertices();
-        vector<ofVec3f> shadowPoints;
-        
-        ofMesh shadowMesh;
-        for(int i = 0; i < verts.size(); i++) {
-            Line newL;
-            newL.p1 = verts[i] - lightSource;
-            newL.p2 = verts[i];
-            shadowPoints.push_back(planeLineIntersection(p, newL));
-        }
-        
-        shadowMesh = m;
-        for(int i = 0; i < m.getNumVertices(); i++) {
-            shadowMesh.setVertex(i, shadowPoints[i]);
-            shadowMesh.setColor(i, ofColor(0));
-        }
-        
-        shadowMesh.draw();
+//        shadow.begin();
+//        shadow.setUniform3f("planeCenter", p.p);
+//        shadow.setUniform3f("planeNormal", p.n);
+//        shadow.setUniform3f("lightPos", lightSource.get());
+//        ofSetColor(255);
+//        words[i].draw();
+//        shadow.end();
     }
-    
-    ofSetColor(0, 0, 255);
-    
+        
     cam.end();
     
     ofDisableDepthTest();
     gui.draw();
+    
+    ofDrawBitmapStringHighlight(ofToString(ofGetFrameRate()), ofGetWidth()-100, ofGetHeight()-10);
 }
 
 //--------------------------------------------------------------

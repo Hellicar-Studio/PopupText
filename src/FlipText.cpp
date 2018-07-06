@@ -19,7 +19,6 @@ void FlipText::init(string text, ofVec3f offset = ofVec3f(0, 0, 0)) {
         for (int i = 0; i < inputMesh.getNumVertices(); i++) {
             ofPoint vertex = inputMesh.getVertex(i);
             inputMesh.setVertex(i, ofPoint(vertex.x - rect.width / 2 + offset.x, -vertex.y - rect.height / 2 + offset.y, offset.z));
-            
             inputMesh.addColor(color);
         }
         
@@ -45,28 +44,32 @@ void FlipText::update() {
         
         theta = ofxeasing::map_clamp(now, initTime, endTime, theta.getMax(), theta.getMin(), ofxeasing::linear::easeIn);
     }
-
-
 }
 
 ofMesh FlipText::draw() {
-    ofMesh drawMesh = mesh;
+//    ofMesh drawMesh = mesh;
     
-    ofSetColor(0, 255, 0);
-    Line rotationLine;
-    rotationLine.p1 = ofVec3f(-500, rotationYPos, 0);
-    rotationLine.p2 = ofVec3f(500, rotationYPos + 0.0001, 0);
-//    rotationLine.draw();
+//    ofSetColor(0, 255, 0);
+//    Line rotationLine;
+//    rotationLine.p1 = ofVec3f(-500, rotationYPos, 0);
+//    rotationLine.p2 = ofVec3f(500, rotationYPos + 0.0001, 0);
     
-    for(int i = 0; i < mesh.getNumVertices(); i++) {
-        ofVec3f v = mesh.getVertex(i);
-        v = rotatePointAboutVector(theta, v, rotationLine.p1, rotationLine.p2);
-        drawMesh.setVertex(i, v);
-    }
+//    ofTranslate(0, rotationYPos);
+//    ofRotate(theta);
+//    ofTranslate(0, -rotationYPos);
     
-    drawMesh.draw();
     
-    return drawMesh;
+    mesh.draw();
+    
+//    for(int i = 0; i < mesh.getNumVertices(); i++) {
+//        ofVec3f v = mesh.getVertex(i);
+//        v = rotatePointAboutVector(theta, v, rotationLine.p1, rotationLine.p2);
+//        drawMesh.setVertex(i, v);
+//    }
+    
+//    drawMesh.draw();
+    
+    return mesh;
 }
 
 ofVec3f FlipText::rotatePointAboutVector(float theta, ofVec3f p, ofVec3f p1, ofVec3f p2) {
@@ -82,9 +85,6 @@ ofVec3f FlipText::rotatePointAboutVector(float theta, ofVec3f p, ofVec3f p1, ofV
     ofMatrix4x4 Rz = ofMatrix4x4(cos(theta), -sin(theta), 0, 0, sin(theta), cos(theta), 0, 0, 0, 0, 1, 0, 0, 0, 0, 1);
     
     ofVec4f Pt = T.getInverse() * Rx.getInverse() * Ry.getInverse() * Rz * Ry * Rx * T * ofVec4f(p.x, p.y, p.z, 1);
-    //    cout << "Point:" << endl;
-    //    cout << "x: " << Pt.x << endl;
-    //    cout << "y: " << Pt.y << endl;
-    //    cout << "z: " << Pt.z << endl;
+
     return ofVec3f(Pt.x, Pt.y, Pt.z);
 }

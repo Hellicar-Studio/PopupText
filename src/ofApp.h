@@ -32,23 +32,19 @@ class ofApp : public ofBaseApp{
     
         void addVerse(string text, ofVec3f offset);
 
-    
         ofxPanel gui;
         ofParameter<ofVec3f> lightSource;
         ofParameter<ofVec3f> planeNormal;
-        ofParameter<float> theta; //
-        ofParameter<float> rotationYPos; //
+    
+        ofMesh shadowMesh;
+
+        ofShader shadow;
     
         vector<FlipText> words;
     
         ofColor frontColor;
-
-        float initTime; //
-    
-        ofMesh mesh; //
     
         ofTrueTypeFont font; //
-        string text = "T"; //
         
         Plane p;
         Line l;
