@@ -42,19 +42,27 @@ void ofApp::setup(){
     gui.loadFromFile(settingsPath);
     
 //    cam.setPosition(-480, -402, 221);
-    cam.lookAt(ofVec3f(0, 0, 0));
     
     shadow.load("shaders/shadow");
     
-    float x = -2000;
-    float y = 1000;
-    float yGap = -200;
-    addVerse(toUpperCase(theRaven), ofVec3f(x, y, 0.01));
+
 }
 
 //--------------------------------------------------------------
 void ofApp::update(){
     p.n = planeNormal;
+    
+    if(words.size() == 0) {
+        float x = -2000;
+        float y = 1000;
+        ofVec3f offset = ofVec3f(x, y, 0.01);
+        ofVec2f size = addVerse(toUpperCase(Xanadu), offset);
+        cam.setPosition(offset.x + size.x/2, offset.y - size.y/2, 2000);
+        cam.lookAt(ofVec3f(offset.x + size.x/2, offset.y - size.y/2, 0));
+    }
+    
+    cout<<cam.getPosition().z<<endl;
+
 //    lightSource.set(ofVec3f(lightSource.get().x, lightSource.get().y, ofMap(sin(ofGetElapsedTimef()), -1.0, 1.0, 200, 250)));
     
     for(int i = 0; i < words.size(); i++) {
@@ -64,8 +72,6 @@ void ofApp::update(){
 
 //--------------------------------------------------------------
 void ofApp::draw(){
-    
-//    ofEnableDepthTest();
     
     cam.begin();
     
@@ -86,19 +92,27 @@ void ofApp::draw(){
         
     cam.end();
     
-//    ofDisableDepthTest();
     gui.draw();
     
     ofDrawBitmapStringHighlight(ofToString(ofGetFrameRate()), ofGetWidth()-100, ofGetHeight()-10);
 }
 
 //--------------------------------------------------------------
-void ofApp::addVerse(string text, ofVec3f offset) {
+ofVec2f ofApp::addVerse(string text, ofVec3f offset) {
     vector<string> lines = ofSplitString(text, "\n");
+    ofVec2f initialOffset = offset;
+    float longestLineLength = 0;
     for(int i = 0; i < lines.size(); i++) {
-        addLine(lines[i], offset);
+        ofVec2f o = addLine(lines[i], offset);
+        if(o.x > longestLineLength) {
+            longestLineLength = o.x;
+        }
         offset.y += -200;
     }
+    cout<<"LongestLine: " <<longestLineLength<<endl;
+    cout<<"TotalHeight: " << abs(offset.y - initialOffset.y)<<endl;
+
+    return ofVec2f(longestLineLength, abs(offset.y - initialOffset.y));
 //    float kerning = 100;
 //    for(int i = 0; i < text.size(); i++) {
 //        FlipText word;
@@ -111,8 +125,9 @@ void ofApp::addVerse(string text, ofVec3f offset) {
 }
 
 //--------------------------------------------------------------
-void ofApp::addLine(string text, ofVec3f offset) {
+ofVec2f ofApp::addLine(string text, ofVec3f offset) {
     float kerning = 100;
+    ofVec3f initialOffset = offset;
     for(int i = 0; i < text.size(); i++) {
         FlipText word;
         word.font = &font;
@@ -121,6 +136,8 @@ void ofApp::addLine(string text, ofVec3f offset) {
         offset.x += kerning;
         words.push_back(word);
     }
+    
+    return offset - initialOffset;
 }
 
 //--------------------------------------------------------------
