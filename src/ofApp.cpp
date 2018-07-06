@@ -77,13 +77,13 @@ void ofApp::draw(){
     for(int i = 0; i < words.size(); i++) {
         words[i].draw();
         
-//        shadow.begin();
-//        shadow.setUniform3f("planeCenter", p.p);
-//        shadow.setUniform3f("planeNormal", p.n);
-//        shadow.setUniform3f("lightPos", lightSource.get());
-//        ofSetColor(255);
-//        words[i].draw();
-//        shadow.end();
+        shadow.begin();
+        shadow.setUniform3f("planeCenter", p.p);
+        shadow.setUniform3f("planeNormal", p.n);
+        shadow.setUniform3f("lightPos", lightSource.get());
+        ofSetColor(255);
+        words[i].draw();
+        shadow.end();
     }
         
     cam.end();

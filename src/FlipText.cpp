@@ -50,24 +50,23 @@ ofMesh FlipText::draw() {
 //    ofMesh drawMesh = mesh;
     
 //    ofSetColor(0, 255, 0);
-//    Line rotationLine;
-//    rotationLine.p1 = ofVec3f(-500, rotationYPos, 0);
-//    rotationLine.p2 = ofVec3f(500, rotationYPos + 0.0001, 0);
+    Line rotationLine;
+    rotationLine.p1 = ofVec3f(-500, rotationYPos, 0);
+    rotationLine.p2 = ofVec3f(500, rotationYPos + 0.0001, 0);
     
 //    ofTranslate(0, rotationYPos);
 //    ofRotate(theta);
 //    ofTranslate(0, -rotationYPos);
     
+    ofMesh drawMesh = mesh;
     
-    mesh.draw();
+    for(int i = 0; i < mesh.getNumVertices(); i++) {
+        ofVec3f v = mesh.getVertex(i);
+        v = rotatePointAboutVector(theta, v, rotationLine.p1, rotationLine.p2);
+        drawMesh.setVertex(i, v);
+    }
     
-//    for(int i = 0; i < mesh.getNumVertices(); i++) {
-//        ofVec3f v = mesh.getVertex(i);
-//        v = rotatePointAboutVector(theta, v, rotationLine.p1, rotationLine.p2);
-//        drawMesh.setVertex(i, v);
-//    }
-    
-//    drawMesh.draw();
+    drawMesh.draw();
     
     return mesh;
 }
