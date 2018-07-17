@@ -1,7 +1,9 @@
 <group>
-	<Light_Pos>0, -336.735, 249.217</Light_Pos>
+	<Light_Pos>0, -336.735, 204.34</Light_Pos>
 	<Plane_Normal>0, 0, 1</Plane_Normal>
 	<Angle>1.5708</Angle>
 <group/>
 <Rotation_Vec_y>-49</Rotation_Vec_y>
+<Color_1>128, 170, 196, 255</Color_1>
+	<Color_2>255, 148, 141, 255</Color_2>
 </group>

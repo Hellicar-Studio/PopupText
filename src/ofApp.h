@@ -35,10 +35,19 @@ class ofApp : public ofBaseApp{
         ofxPanel gui;
         ofParameter<ofVec3f> lightSource;
         ofParameter<ofVec3f> planeNormal;
+        ofParameter<ofColor> c1, c2;
     
         ofMesh shadowMesh;
 
-        ofShader shadow, rotate;
+        ofShader shadow, rotate, gradient;
+    
+        ofFbo buffer;
+    
+        vector<string> Slough;
+    
+        int lineIndex = 0;
+    
+        int slide;
     
         vector<FlipText> words;
     
@@ -47,7 +56,7 @@ class ofApp : public ofBaseApp{
         ofTrueTypeFont font; //
         
         Plane p;
-        Line l;
+        Line l1, l2;
     
         ofEasyCam cam;
 };

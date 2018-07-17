@@ -14,8 +14,6 @@ string toUpperCase ( string str )
 
 const string Xanadu = "In Xanadu did Kubla Khan\nA stately pleasure dome decree:\nWhere Alph, the sacred river, ran\nThrough caverns measureless to man\nDown to a sunless sea.\nSo twice five miles of fertile ground\nWith walls and towers were girdled round:\nAnd there were gardens bright with sinuous rills,\nWhere blossomed many an incense-bearing tree;\nAnd here were forests ancient as the hills,\nEnfolding sunny spots of greenery.";
 
-const string Slough = "Come friendly bombs and fall on Slough!\nIt isn't fit for humans now,\nThere isn't grass to graze a cow.\nSwarm over, Death!";
-
 const string HS = "Hellicar\n     Studio";
 
 const string theRaven = "Once upon a midnight dreary, while I pondered, weak and weary,\nOver many a quaint and curious volume of forgotten lore-\nWhile I nodded, nearly napping, suddenly there came a tapping,\nAs of some one gently rapping, rapping at my chamber door.\n\"’Tis some visitor,\" I muttered, \"tapping at my chamber door—\nOnly this and nothing more.\"";
@@ -24,28 +22,40 @@ const string theRaven = "Once upon a midnight dreary, while I pondered, weak and
 void ofApp::setup(){
     font.load("fonts/HeveticaBold.ttf", 100, true, true, true);
     
-    frontColor = ofColor(255, 250, 240);
+    frontColor = ofColor(255, 0, 0);
     
     ofSetBackgroundColor(frontColor);
     
     p.p = ofVec3f(0, 0, 0);
     p.n = ofVec3f(0, 0, 1);
-    l.p1 = ofVec3f(100, 100, 100);
-    l.p2 = ofVec3f(20, 20, 20);
+//    l.p1 = ofVec3f(100, 100, 100);
+//    l.p2 = ofVec3f(20, 20, 20);
     
     string settingsPath = "settings/settings.xml";
     
     gui.setup("Controls", settingsPath);
     gui.add(lightSource.set("Light Pos", ofVec3f(-300, -200, 140), ofVec3f(-1000, -1000, -1000), ofVec3f(1000, 1000, 1000)));
     gui.add(planeNormal.set("Plane Normal", ofVec3f(0, 0, 1), ofVec3f(-1, -1, -1), ofVec3f(1, 1, 1)));
+    gui.add(c1.set("Color 1", ofColor(255)));
+    gui.add(c2.set("Color 2", ofColor(127)));
 
     gui.loadFromFile(settingsPath);
+    
+    Slough.push_back("Come friendly bombs and fall on Slough!");
+    Slough.push_back("It isn't fit for humans now,");
+    Slough.push_back("There isn't grass to graze a cow.");
+    Slough.push_back("Swarm over, Death!");
     
 //    cam.setPosition(-480, -402, 221);
     
     shadow.load("shaders/shadow");
     
-
+    gradient.load("shaders/gradient");
+    
+    slide = -500;
+    
+    buffer.allocate(ofGetWidth(), ofGetHeight());
+    buffer.getTexture().getTextureData().bFlipTexture = false;
 }
 
 //--------------------------------------------------------------
@@ -61,22 +71,33 @@ void ofApp::update(){
         cam.lookAt(ofVec3f(offset.x + size.x/2, offset.y - size.y/2, 0));
     }
     
-    cout<<cam.getPosition().z<<endl;
+    lightSource.set(ofVec3f(lightSource.get().x, lightSource.get().y, ofMap(sin(ofGetElapsedTimef()), -1.0, 1.0, 200, 250)));
 
-//    lightSource.set(ofVec3f(lightSource.get().x, lightSource.get().y, ofMap(sin(ofGetElapsedTimef()), -1.0, 1.0, 200, 250)));
+    slide += 3;
     
+    if(slide > 2000) {
+        slide = -1000;
+    }
     for(int i = 0; i < words.size(); i++) {
         words[i].update();
     }
+    
+//    cam.setPosition(0, -1000, 3300);
+
 }
 
 //--------------------------------------------------------------
 void ofApp::draw(){
     
+//    buffer.clear();
+    buffer.begin();
+    ofClear(0, 0, 0, 0);
     cam.begin();
+    ofBackground(frontColor);
     
+    ofPushMatrix();
     for(int i = 0; i < words.size(); i++) {
-        ofMatrix4x4 m = words[i].draw();
+        ofMatrix4x4 m = words[i].draw(0, slide);
         
         shadow.begin();
         shadow.setUniform3f("planeCenter", p.p);
@@ -84,17 +105,43 @@ void ofApp::draw(){
         shadow.setUniform3f("lightPos", lightSource.get());
         shadow.setUniformMatrix4f("rotationMatrix", m);
         ofSetColor(255);
+        ofTranslate(0, slide);
         words[i].mesh.draw();
+        ofTranslate(0, -slide);
         shadow.end();
         
-        words[i].draw();
+        words[i].draw(0, slide);
     }
-        
+    
+    ofPopMatrix();
+    
     cam.end();
     
+    buffer.end();
+    
+    ofDisableDepthTest();
+    
+    gradient.begin();
+    gradient.setUniformTexture("inputTexture", buffer.getTexture(), 0);
+    gradient.setUniform2f("resolution", ofVec2f(ofGetWidth(), ofGetHeight()));
+    gradient.setUniform3f("col1", ofVec3f(c1.get().r/255.0, c1.get().g/255.0, c1.get().b/255.0));
+    gradient.setUniform3f("col2", ofVec3f(c2.get().r/255.0, c2.get().g/255.0, c2.get().b/255.0));
+    ofDrawRectangle(0, 0, ofGetWidth(), ofGetHeight());
+    ofSetColor(0, 255, 0);
+    ofDrawCircle(0, 0, 500);
+    gradient.end();
+//
+//    buffer.draw(0, 0);
+//
     gui.draw();
     
     ofDrawBitmapStringHighlight(ofToString(ofGetFrameRate()), ofGetWidth()-100, ofGetHeight()-10);
+    
+    stringstream ss;
+    
+    ss << "CamX: " << cam.getPosition().x << " CamY: " << cam.getPosition().y << " CamZ: " << cam.getPosition().z;
+    
+    ofDrawBitmapStringHighlight(ss.str(), ofGetWidth()-500, 20);
 }
 
 //--------------------------------------------------------------
@@ -113,15 +160,6 @@ ofVec2f ofApp::addVerse(string text, ofVec3f offset) {
     cout<<"TotalHeight: " << abs(offset.y - initialOffset.y)<<endl;
 
     return ofVec2f(longestLineLength, abs(offset.y - initialOffset.y));
-//    float kerning = 100;
-//    for(int i = 0; i < text.size(); i++) {
-//        FlipText word;
-//        word.font = &font;
-//        word.color = frontColor;
-//        word.init(string(1, text[i]), offset);
-//        offset.x += kerning;
-//        words.push_back(word);
-//    }
 }
 
 //--------------------------------------------------------------
@@ -132,7 +170,7 @@ ofVec2f ofApp::addLine(string text, ofVec3f offset) {
         FlipText word;
         word.font = &font;
         word.color = frontColor;
-        word.init(string(1, text[i]), offset);
+        word.init(string(1, text[i]), offset, i * 0.05);
         offset.x += kerning;
         words.push_back(word);
     }
@@ -163,12 +201,23 @@ void ofApp::keyPressed(int key){
             words[i].active = !words[i].active;
         }
         float now = ofGetElapsedTimef();
-        float offset = 0.2f;
-        float delay = 0.2f;
+        float offset = 0.05f;
+        float delay = 0.05f;
         for(int i = 0; i < words.size(); i++) {
             words[i].initTime = now+delay;
             delay += offset;
         }
+    }
+    if(key == 'n') {
+        lineIndex++;
+        lineIndex %= Slough.size();
+        float x = 0;
+        float y = 0;
+        ofVec3f offset = ofVec3f(x, y, 0.01);
+        words.clear();
+        ofVec2f size = addVerse(toUpperCase(Slough[lineIndex]), offset);
+//        cam.setPosition(offset.x + size.x/2, offset.y - size.y/2, 2000);
+//        cam.lookAt(ofVec3f(offset.x + size.x/2, offset.y - size.y/2, 0));
     }
 }
 
@@ -209,7 +258,7 @@ void ofApp::mouseExited(int x, int y){
 
 //--------------------------------------------------------------
 void ofApp::windowResized(int w, int h){
-
+    buffer.allocate(w, h);
 }
 
 //--------------------------------------------------------------
