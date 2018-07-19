@@ -26,11 +26,6 @@ void ofApp::setup(){
     
     ofSetBackgroundColor(frontColor);
     
-    p.p = ofVec3f(0, 0, 0);
-    p.n = ofVec3f(0, 0, 1);
-//    l.p1 = ofVec3f(100, 100, 100);
-//    l.p2 = ofVec3f(20, 20, 20);
-    
     string settingsPath = "settings/settings.xml";
     
     gui.setup("Controls", settingsPath);
@@ -54,8 +49,42 @@ void ofApp::setup(){
     
     slide = -500;
     
+    if(cameraSettings.loadFile("settings/cameraSettings.xml") ) {
+        int numSavedPositions = cameraSettings.getNumTags("position");
+        for(int i = 0; i < numSavedPositions; i++) {
+            ofVec3f pos;
+            ofVec3f upDir;
+            ofVec3f lookAt;
+            cameraSettings.pushTag("position", i);
+            pos.x = cameraSettings.getValue("X", 0);
+            pos.y = cameraSettings.getValue("Y", 0);
+            pos.z = cameraSettings.getValue("Z", 0);
+            cameraSettings.popTag();
+            cameraSettings.pushTag("upDir", i);
+            upDir.x = cameraSettings.getValue("X", 0);
+            upDir.y = cameraSettings.getValue("Y", 0);
+            upDir.z = cameraSettings.getValue("Z", 0);
+            cameraSettings.popTag();
+            cameraSettings.pushTag("LookAt", i);
+            lookAt.x = cameraSettings.getValue("X", 0);
+            lookAt.y = cameraSettings.getValue("Y", 0);
+            lookAt.z = cameraSettings.getValue("Z", 0);
+            cameraSettings.popTag();
+            
+            camPositions.push_back(pos);
+            camUpVectors.push_back(upDir);
+            camLookAts.push_back(lookAt);
+        }
+    } else {
+        ofLogError("No Camera Settings File Found");
+    }
+    
+    
     buffer.allocate(ofGetWidth(), ofGetHeight());
     buffer.getTexture().getTextureData().bFlipTexture = false;
+    
+    cam.setPosition(ofVec3f(0, 0, 1000));
+    cam.lookAt(ofVec3f(0, 0, 0));
 }
 
 //--------------------------------------------------------------
@@ -197,27 +226,37 @@ ofVec3f ofApp::planeLineIntersection(Plane p, Line l) {
 //--------------------------------------------------------------
 void ofApp::keyPressed(int key){
     if(key == ' ') {
-        for(int i = 0; i < words.size(); i++) {
-            words[i].active = !words[i].active;
-        }
-        float now = ofGetElapsedTimef();
-        float offset = 0.05f;
-        float delay = 0.05f;
-        for(int i = 0; i < words.size(); i++) {
-            words[i].initTime = now+delay;
-            delay += offset;
-        }
+        camPositions.push_back(cam.getPosition());
+        camUpVectors.push_back(cam.getUpDir());
+        camLookAts.push_back(cam.getLookAtDir());
     }
     if(key == 'n') {
-        lineIndex++;
-        lineIndex %= Slough.size();
-        float x = 0;
-        float y = 0;
-        ofVec3f offset = ofVec3f(x, y, 0.01);
-        words.clear();
-        ofVec2f size = addVerse(toUpperCase(Slough[lineIndex]), offset);
-//        cam.setPosition(offset.x + size.x/2, offset.y - size.y/2, 2000);
-//        cam.lookAt(ofVec3f(offset.x + size.x/2, offset.y - size.y/2, 0));
+        int i = ofRandom(0, camPositions.size());
+        cam.setPosition(camPositions[i]);
+        cam.lookAt(ofVec3f(0, 0, 0), camUpVectors[i]);
+    }
+    if(key == 's') {
+        for(int i = 0; i < camPositions.size(); i++) {
+            cameraSettings.addTag("position");
+            cameraSettings.pushTag("position", i);
+            cameraSettings.addValue("X", camPositions[i].x);
+            cameraSettings.addValue("Y", camPositions[i].y);
+            cameraSettings.addValue("Z", camPositions[i].z);
+            cameraSettings.popTag();
+            cameraSettings.addTag("upDir");
+            cameraSettings.pushTag("upDir", i);
+            cameraSettings.addValue("X", camUpVectors[i].x);
+            cameraSettings.addValue("Y", camUpVectors[i].y);
+            cameraSettings.addValue("Z", camUpVectors[i].z);
+            cameraSettings.popTag();
+            cameraSettings.addTag("LookAt");
+            cameraSettings.pushTag("LookAt", i);
+            cameraSettings.addValue("X", camLookAts[i].x);
+            cameraSettings.addValue("Y", camLookAts[i].y);
+            cameraSettings.addValue("Z", camLookAts[i].z);
+            cameraSettings.popTag();
+        }
+        cameraSettings.saveFile("settings/cameraSettings.xml");
     }
 }
 

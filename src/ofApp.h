@@ -6,6 +6,7 @@
 #include "ofxEasing.h"
 #include "FlipText.hpp"
 #include "RayUtils.h"
+#include "ofxXmlSettings.h"
 
 class ofApp : public ofBaseApp{
 
@@ -36,6 +37,12 @@ class ofApp : public ofBaseApp{
         ofParameter<ofVec3f> lightSource;
         ofParameter<ofVec3f> planeNormal;
         ofParameter<ofColor> c1, c2;
+    
+        vector<ofVec3f> camPositions;
+        vector<ofVec3f> camUpVectors;
+        vector<ofVec3f> camLookAts;
+    
+        ofxXmlSettings cameraSettings;
     
         ofMesh shadowMesh;
 
