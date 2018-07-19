@@ -49,7 +49,7 @@ void ofApp::setup(){
     
     gradient.load("shaders/gradient");
     
-    slide = -500;
+    slide = -1000;
     
     if(colorSettings.loadFile("settings/colorSettings.xml") ) {
         int numSavedColors = colorSettings.getNumTags("color");
@@ -115,9 +115,9 @@ void ofApp::setup(){
     cam.setPosition(ofVec3f(0, 0, 1000));
     cam.lookAt(ofVec3f(0, 0, -1), ofVec3f(0, 1, 0));
     
-//    camPosition = cam.getPosition();
-//    camUpVector = cam.getUpDir();
-//    camLookAt = cam.getLookAtDir();
+    camPosition = cam.getPosition();
+    camUpVector = cam.getUpDir();
+    camLookAt = cam.getLookAtDir();
 }
 
 //--------------------------------------------------------------
@@ -132,15 +132,13 @@ void ofApp::update(){
         for(int i = 0; i < words.size(); i++) {
             cout<<words[i].text;
         }
-//        cam.setPosition(offset.x + size.x/2, offset.y - size.y/2, 2000);
-//        cam.lookAt(ofVec3f(offset.x + size.x/2, offset.y - size.y/2, 0));
     }
     
     lightSource.set(ofVec3f(lightSource.get().x, lightSource.get().y, ofMap(sin(ofGetElapsedTimef()), -1.0, 1.0, 200, 250)));
 
     slide += 3;
     
-    if(slide > 10000) {
+    if(slide > 8800) {
         slide = -1000;
     }
     
@@ -157,10 +155,8 @@ void ofApp::update(){
     c1.set(c1New.lerp(colorPairs[colorIndex].first, 0.1));
     c2.set(c2New.lerp(colorPairs[colorIndex].second, 0.1));
 
-//    cam.setPosition(camPosition);
-//    cam.lookAt(camLookAt, camUpVector);
-
-//    cam.setPosition(0, -1000, 3300);
+    cam.setPosition(camPosition);
+    cam.lookAt(camLookAt, camUpVector);
 
 }
 
@@ -219,7 +215,8 @@ void ofApp::draw(){
     stringstream ss;
     ss << "CamX: " << cam.getPosition().x << " CamY: " << cam.getPosition().y << " CamZ: " << cam.getPosition().z << endl;
     ss << "CamUpX: " << cam.getUpDir().x << " CamUpY: " << cam.getUpDir().y << " CamUpZ: " << cam.getUpDir().z << endl;
-    ss << "CamTargetX: " << cam.getLookAtDir().x << " CamTargetY: " << cam.getLookAtDir().y << " CamTargetZ: " << cam.getLookAtDir().z;
+    ss << "CamTargetX: " << cam.getLookAtDir().x << " CamTargetY: " << cam.getLookAtDir().y << " CamTargetZ: " << cam.getLookAtDir().z <<endl;
+    ss << "Slide: " << slide;
     ofDrawBitmapStringHighlight(ss.str(), ofGetWidth()-500, 20);
 }
 
@@ -288,9 +285,9 @@ void ofApp::keyPressed(int key){
     if(key == ' ') {
         pair<ofColor, ofColor> colPair = make_pair(c1, c2);
         colorPairs.push_back(colPair);
-//        camPositions.push_back(cam.getPosition());
-//        camUpVectors.push_back(cam.getUpDir());
-//        camLookAts.push_back(cam.getLookAtDir());
+        camPositions.push_back(cam.getPosition());
+        camUpVectors.push_back(cam.getUpDir());
+        camLookAts.push_back(cam.getLookAtDir());
     }
     if(key == 'n') {
         camIndex = ofRandom(0, camPositions.size());
@@ -314,28 +311,28 @@ void ofApp::keyPressed(int key){
             colorSettings.popTag();
         }
         colorSettings.saveFile("settings/colorSettings.xml");
-//        cameraSettings.clear();
-//        for(int i = 0; i < camPositions.size(); i++) {
-//            cameraSettings.addTag("position");
-//            cameraSettings.pushTag("position", i);
-//            cameraSettings.addValue("X", camPositions[i].x);
-//            cameraSettings.addValue("Y", camPositions[i].y);
-//            cameraSettings.addValue("Z", camPositions[i].z);
-//            cameraSettings.popTag();
-//            cameraSettings.addTag("upDir");
-//            cameraSettings.pushTag("upDir", i);
-//            cameraSettings.addValue("X", camUpVectors[i].x);
-//            cameraSettings.addValue("Y", camUpVectors[i].y);
-//            cameraSettings.addValue("Z", camUpVectors[i].z);
-//            cameraSettings.popTag();
-//            cameraSettings.addTag("LookAt");
-//            cameraSettings.pushTag("LookAt", i);
-//            cameraSettings.addValue("X", camLookAts[i].x);
-//            cameraSettings.addValue("Y", camLookAts[i].y);
-//            cameraSettings.addValue("Z", camLookAts[i].z);
-//            cameraSettings.popTag();
-//        }
-//        cameraSettings.saveFile("settings/cameraSettings.xml");
+        cameraSettings.clear();
+        for(int i = 0; i < camPositions.size(); i++) {
+            cameraSettings.addTag("position");
+            cameraSettings.pushTag("position", i);
+            cameraSettings.addValue("X", camPositions[i].x);
+            cameraSettings.addValue("Y", camPositions[i].y);
+            cameraSettings.addValue("Z", camPositions[i].z);
+            cameraSettings.popTag();
+            cameraSettings.addTag("upDir");
+            cameraSettings.pushTag("upDir", i);
+            cameraSettings.addValue("X", camUpVectors[i].x);
+            cameraSettings.addValue("Y", camUpVectors[i].y);
+            cameraSettings.addValue("Z", camUpVectors[i].z);
+            cameraSettings.popTag();
+            cameraSettings.addTag("LookAt");
+            cameraSettings.pushTag("LookAt", i);
+            cameraSettings.addValue("X", camLookAts[i].x);
+            cameraSettings.addValue("Y", camLookAts[i].y);
+            cameraSettings.addValue("Z", camLookAts[i].z);
+            cameraSettings.popTag();
+        }
+        cameraSettings.saveFile("settings/cameraSettings.xml");
     }
 }
 
