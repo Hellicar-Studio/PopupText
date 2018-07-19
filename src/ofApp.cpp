@@ -81,14 +81,17 @@ void ofApp::setup(){
         ofLogError("No Camera Settings File Found");
     }
     
-    camIndex = 0;
-    
-    
     buffer.allocate(ofGetWidth(), ofGetHeight());
     buffer.getTexture().getTextureData().bFlipTexture = false;
     
+
     cam.setPosition(ofVec3f(0, 0, 1000));
     cam.lookAt(ofVec3f(0, 0, 0));
+    
+    
+    camPosition = cam.getPosition();
+    camUpVector = cam.getUpDir();
+    camLookAt = cam.getLookAtDir();
 }
 
 //--------------------------------------------------------------
@@ -100,8 +103,8 @@ void ofApp::update(){
         float y = 1000;
         ofVec3f offset = ofVec3f(x, y, 0.01);
         ofVec2f size = addVerse(toUpperCase(Xanadu), offset);
-        cam.setPosition(offset.x + size.x/2, offset.y - size.y/2, 2000);
-        cam.lookAt(ofVec3f(offset.x + size.x/2, offset.y - size.y/2, 0));
+//        cam.setPosition(offset.x + size.x/2, offset.y - size.y/2, 2000);
+//        cam.lookAt(ofVec3f(offset.x + size.x/2, offset.y - size.y/2, 0));
     }
     
     lightSource.set(ofVec3f(lightSource.get().x, lightSource.get().y, ofMap(sin(ofGetElapsedTimef()), -1.0, 1.0, 200, 250)));
@@ -115,6 +118,14 @@ void ofApp::update(){
         words[i].update();
     }
     
+    camPosition.interpolate(camPositions[camIndex], 0.1);
+    camLookAt.interpolate(camLookAts[camIndex], 0.1);
+    camUpVector.interpolate(camUpVectors[camIndex], 0.1);
+
+    cam.setPosition(camPosition);
+    cam.lookAt(camLookAt, camUpVector);
+
+    
 //    cam.setPosition(0, -1000, 3300);
 
 }
@@ -122,6 +133,7 @@ void ofApp::update(){
 //--------------------------------------------------------------
 void ofApp::draw(){
     
+    ofEnableDepthTest();
 //    buffer.clear();
     buffer.begin();
     ofClear(0, 0, 0, 0);
@@ -131,17 +143,19 @@ void ofApp::draw(){
     ofPushMatrix();
     for(int i = 0; i < words.size(); i++) {
         ofMatrix4x4 m = words[i].draw(0, slide);
-        
-        shadow.begin();
-        shadow.setUniform3f("planeCenter", p.p);
-        shadow.setUniform3f("planeNormal", p.n);
-        shadow.setUniform3f("lightPos", lightSource.get());
-        shadow.setUniformMatrix4f("rotationMatrix", m);
-        ofSetColor(255);
-        ofTranslate(0, slide);
-        words[i].mesh.draw();
-        ofTranslate(0, -slide);
-        shadow.end();
+        if(words[i].theta > 0) {
+            shadow.begin();
+            shadow.setUniform3f("planeCenter", p.p);
+            shadow.setUniform3f("planeNormal", p.n);
+            shadow.setUniform3f("lightPos", lightSource.get());
+            shadow.setUniformMatrix4f("rotationMatrix", m);
+            ofSetColor(255);
+            ofTranslate(0, slide);
+            words[i].mesh.draw();
+            ofTranslate(0, -slide);
+            shadow.end();
+        }
+
         
         words[i].draw(0, slide);
     }
@@ -235,11 +249,7 @@ void ofApp::keyPressed(int key){
         camLookAts.push_back(cam.getLookAtDir());
     }
     if(key == 'n') {
-        camIndex++;
-        camIndex%=camPositions.size();
-        int i = camIndex;//ofRandom(0, camPositions.size());
-        cam.setPosition(camPositions[i]);
-        cam.lookAt(camLookAts[i], camUpVectors[i]);
+        camIndex = ofRandom(0, camPositions.size());
     }
     if(key == 's') {
         cameraSettings.clear();

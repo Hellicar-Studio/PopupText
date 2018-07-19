@@ -42,8 +42,8 @@ class ofApp : public ofBaseApp{
         vector<ofVec3f> camUpVectors;
         vector<ofVec3f> camLookAts;
     
-        int camIndex;
-    
+        ofVec3f camPosition, camUpVector, camLookAt;
+        
         ofxXmlSettings cameraSettings;
     
         ofMesh shadowMesh;
@@ -55,6 +55,7 @@ class ofApp : public ofBaseApp{
         vector<string> Slough;
     
         int lineIndex = 0;
+        int camIndex = 0;
     
         int slide;
     
