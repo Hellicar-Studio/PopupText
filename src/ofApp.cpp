@@ -282,11 +282,6 @@ ofVec3f ofApp::planeLineIntersection(Plane p, Line l) {
 
 //--------------------------------------------------------------
 void ofApp::keyPressed(int key){
-    if(key =='a') {
-        for(int i = 0; i < words.size(); i++) {
-            words[i].setActive(!words[i].active);
-        }
-    }
     if(key == ' ') {
         pair<ofColor, ofColor> colPair = make_pair(c1, c2);
         colorPairs.push_back(colPair);
