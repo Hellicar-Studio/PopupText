@@ -24,5 +24,7 @@ spacebar - save current camera and color settings to temporary buffer
 
 s - save all saved camera and color settings in temporary buffer to file
 
+a - toggle auto-running experience
+
 
 

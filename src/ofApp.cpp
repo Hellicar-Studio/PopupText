@@ -120,6 +120,7 @@ void ofApp::setup(){
     camLookAt = cam.getLookAtDir();
     
     showGui = false;
+    autoPlayOn = true;
 }
 
 //--------------------------------------------------------------
@@ -154,14 +155,15 @@ void ofApp::update(){
     camLookAt.interpolate(camLookAts[camIndex], 0.1);
     camUpVector.interpolate(camUpVectors[camIndex], 0.1);
     
-    ofColor c1New = c1.get();
-    ofColor c2New = c2.get();
-    c1.set(c1New.lerp(colorPairs[colorIndex].first, 0.1));
-    c2.set(c2New.lerp(colorPairs[colorIndex].second, 0.1));
-
-    cam.setPosition(camPosition);
-    cam.lookAt(camLookAt, camUpVector);
-
+    if(autoPlayOn) {
+        ofColor c1New = c1.get();
+        ofColor c2New = c2.get();
+        c1.set(c1New.lerp(colorPairs[colorIndex].first, 0.1));
+        c2.set(c2New.lerp(colorPairs[colorIndex].second, 0.1));
+        
+        cam.setPosition(camPosition);
+        cam.lookAt(camLookAt, camUpVector);
+    }
 }
 
 //--------------------------------------------------------------
@@ -284,6 +286,9 @@ ofVec3f ofApp::planeLineIntersection(Plane p, Line l) {
 
 //--------------------------------------------------------------
 void ofApp::keyPressed(int key){
+    if(key == 'a') {
+        autoPlayOn = !autoPlayOn;
+    }
     if(key == ' ') {
         pair<ofColor, ofColor> colPair = make_pair(c1, c2);
         colorPairs.push_back(colPair);

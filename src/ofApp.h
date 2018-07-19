@@ -60,6 +60,7 @@ class ofApp : public ofBaseApp{
         int colorIndex = 0;
     
         bool showGui;
+        bool autoPlayOn;
     
         int slide;
     
