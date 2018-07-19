@@ -237,7 +237,7 @@ void ofApp::keyPressed(int key){
         camIndex%=camPositions.size();
         int i = camIndex;//ofRandom(0, camPositions.size());
         cam.setPosition(camPositions[i]);
-        cam.lookAt(ofVec3f(0, 0, 0), camUpVectors[i]);
+        cam.lookAt(camLookAts[i], camUpVectors[i]);
     }
     if(key == 's') {
         cameraSettings.clear();
