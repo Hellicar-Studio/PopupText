@@ -56,20 +56,22 @@ void ofApp::setup(){
             ofVec3f upDir;
             ofVec3f lookAt;
             cameraSettings.pushTag("position", i);
-            pos.x = cameraSettings.getValue("X", 0);
-            pos.y = cameraSettings.getValue("Y", 0);
-            pos.z = cameraSettings.getValue("Z", 0);
+            pos.x = cameraSettings.getValue("X", 0.0);
+            pos.y = cameraSettings.getValue("Y", 0.0);
+            pos.z = cameraSettings.getValue("Z", 0.0);
             cameraSettings.popTag();
             cameraSettings.pushTag("upDir", i);
-            upDir.x = cameraSettings.getValue("X", 0);
-            upDir.y = cameraSettings.getValue("Y", 0);
-            upDir.z = cameraSettings.getValue("Z", 0);
+            upDir.x = cameraSettings.getValue("X", 0.0);
+            upDir.y = cameraSettings.getValue("Y", 0.0);
+            upDir.z = cameraSettings.getValue("Z", 0.0);
             cameraSettings.popTag();
             cameraSettings.pushTag("LookAt", i);
-            lookAt.x = cameraSettings.getValue("X", 0);
-            lookAt.y = cameraSettings.getValue("Y", 0);
-            lookAt.z = cameraSettings.getValue("Z", 0);
+            lookAt.x = cameraSettings.getValue("X", 0.0);
+            lookAt.y = cameraSettings.getValue("Y", 0.0);
+            lookAt.z = cameraSettings.getValue("Z", 0.0);
             cameraSettings.popTag();
+            
+            cout<<lookAt<<endl;
             
             camPositions.push_back(pos);
             camUpVectors.push_back(upDir);
