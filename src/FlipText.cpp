@@ -7,12 +7,12 @@
 
 #include "FlipText.hpp"
 
-void FlipText::init(string text, ofVec3f _offset = ofVec3f(0, 0, 0), float _delay = 0) {
+void FlipText::init(string _text, ofVec3f _offset = ofVec3f(0, 0, 0), float _delay = 0) {
     offset = _offset;
     delay = _delay;
+    text = _text;
     vector<ofTTFCharacter> characters = font->getStringAsPoints(text);
     ofRectangle rect = font->getStringBoundingBox(text, 0, 0);
-    rotationYPos = offset.y-rect.getHeight()/2;
     // Go through all the characters
     for (int j = 0; j < characters.size(); j++) {
         // Get the outline of each character
@@ -20,49 +20,35 @@ void FlipText::init(string text, ofVec3f _offset = ofVec3f(0, 0, 0), float _dela
         
         for (int i = 0; i < inputMesh.getNumVertices(); i++) {
             ofPoint vertex = inputMesh.getVertex(i);
-            inputMesh.setVertex(i, ofPoint(vertex.x - rect.width / 2 + offset.x, -vertex.y - rect.height / 2 + offset.y, offset.z));
-            inputMesh.addColor(color);
+            inputMesh.setVertex(i, ofPoint(vertex.x, -vertex.y, 0));
+            inputMesh.addColor(ofColor(255, 255 ,255));
         }
         
         Triangulator::generateTriangulation(&inputMesh, &mesh);
     }
-    
-    theta.set("Theta", 0, 0, PI/2);
+        
+    theta = 0;
+    thetaMax = PI/2;
+    thetaMin = 0;
     
     active = false;
 }
 
-void FlipText::update() {
+void FlipText::update(float x, float y) {
     if(active) {
         auto duration = 3.f; // three seconds
         auto now = ofGetElapsedTimef();
         auto endTime = initTime + duration;
         
-        theta = ofxeasing::map_clamp(now, initTime, endTime, theta.getMin(), theta.getMax(), ofxeasing::elastic::easeOut);
+        theta = ofxeasing::map_clamp(now, initTime, endTime, thetaMin, thetaMax, ofxeasing::elastic::easeOut);
     } else {
         auto duration = 1.f; // three seconds
         auto now = ofGetElapsedTimef();
         auto endTime = initTime + duration;
         
-        theta = ofxeasing::map_clamp(now, initTime, endTime, theta.getMax(), theta.getMin(), ofxeasing::linear::easeIn);
+        theta = ofxeasing::map_clamp(now, initTime, endTime, thetaMax, thetaMin, ofxeasing::linear::easeIn);
     }
-}
-
-ofMatrix4x4 FlipText::draw(float x, float y) {
     
-    ofPushMatrix();
-    Line rotationLine;
-    rotationLine.p1 = ofVec3f(-500, rotationYPos, 0);
-    rotationLine.p2 = ofVec3f(500, rotationYPos + 0.0001, 0);
-    
-    ofTranslate(x, y);
-    ofTranslate(0, rotationYPos);
-    ofRotate(theta * 180 / PI, 1, 0, 0);
-    ofTranslate(0, -rotationYPos);
-    mesh.draw();
-    ofTranslate(x, y);
-    
-    ofPopMatrix();
     
     if(y + offset.y > FLIP_TOP) {
         if(active)
@@ -74,6 +60,27 @@ ofMatrix4x4 FlipText::draw(float x, float y) {
             initTime = ofGetElapsedTimef() + delay;
         active = true;
     }
+}
+
+void FlipText::setActive(bool _a) {
+    initTime = ofGetElapsedTimef() + delay;
+    active = _a;
+}
+
+ofMatrix4x4 FlipText::draw(float x, float y) {
+    
+    ofPushMatrix();
+    Line rotationLine;
+    rotationLine.p1 = ofVec3f(-500, 0, 0);
+    rotationLine.p2 = ofVec3f(500, 0 + 0.0001, 0);
+    
+    ofTranslate(x, y);
+    ofTranslate(offset);
+    ofRotate(theta * 180 / PI, 1, 0, 0);
+    ofSetColor(0, 255, 0);
+    mesh.draw();
+    
+    ofPopMatrix();
     
     return getRotationMatrix(theta, rotationLine.p1, rotationLine.p2);
 }

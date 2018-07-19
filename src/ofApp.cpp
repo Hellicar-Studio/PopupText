@@ -18,6 +18,8 @@ const string HS = "Hellicar\n     Studio";
 
 const string theRaven = "Once upon a midnight dreary, while I pondered, weak and weary,\nOver many a quaint and curious volume of forgotten lore-\nWhile I nodded, nearly napping, suddenly there came a tapping,\nAs of some one gently rapping, rapping at my chamber door.\n\"’Tis some visitor,\" I muttered, \"tapping at my chamber door—\nOnly this and nothing more.\"";
 
+const string allMyPeople = "All My People\n\nJames Massiah\n\nAll these people\nAll their opinions\nAll their politics\nAll their shit\nAll the places that they live\nAll their palaces\nAll their pads\nAll their mansions and their parties\nAll their flats\nAll their hives\nAll their lows\nAll their highs\nAll their health\nAll their yoga and Pilates\nAll their preciousness\nAnd stretching\nAnd their aching\nAnd their pain\n\nAll their punches\nNeed more sugar\nAll their churches\nNeed more Satan\nAll their virgins\nNeed more laying\nAll their idols\nNeed more slaying\n\nTheir religions\nAnd their myths\nAll their children\nAll their kids\nAnd their choices\nAnd their choppers\nAll their roads\nNeed more lanes\n\nAll their babies need new names\nAnd their planet, a new sun\nAll their gangsters need new guns\nAnd I’ll be shot through every one\n\n";
+
 //--------------------------------------------------------------
 void ofApp::setup(){
     font.load("fonts/HeveticaBold.ttf", 100, true, true, true);
@@ -48,6 +50,31 @@ void ofApp::setup(){
     gradient.load("shaders/gradient");
     
     slide = -500;
+    
+    if(colorSettings.loadFile("settings/colorSettings.xml") ) {
+        int numSavedColors = colorSettings.getNumTags("color");
+        for(int i = 0; i < numSavedColors-1; i+=2) {
+            ofColor c1;
+            ofColor c2;
+            colorSettings.pushTag("color", i);
+            c1.r = colorSettings.getValue("R", 0.0);
+            c1.g = colorSettings.getValue("G", 0.0);
+            c1.b = colorSettings.getValue("B", 0.0);
+            colorSettings.popTag();
+
+            colorSettings.pushTag("color", i+1);
+            c2.r = colorSettings.getValue("R", 0.0);
+            c2.g = colorSettings.getValue("G", 0.0);
+            c2.b = colorSettings.getValue("B", 0.0);
+            colorSettings.popTag();
+
+            pair<ofColor, ofColor> c = make_pair(c1, c2);
+            
+            colorPairs.push_back(c);
+        }
+    } else {
+        colorPairs.push_back(make_pair(c1.get(), c2.get()));
+    }
     
     if(cameraSettings.loadFile("settings/cameraSettings.xml") ) {
         int numSavedPositions = cameraSettings.getNumTags("position");
@@ -86,12 +113,11 @@ void ofApp::setup(){
     
 
     cam.setPosition(ofVec3f(0, 0, 1000));
-    cam.lookAt(ofVec3f(0, 0, 0));
+    cam.lookAt(ofVec3f(0, 0, -1), ofVec3f(0, 1, 0));
     
-    
-    camPosition = cam.getPosition();
-    camUpVector = cam.getUpDir();
-    camLookAt = cam.getLookAtDir();
+//    camPosition = cam.getPosition();
+//    camUpVector = cam.getUpDir();
+//    camLookAt = cam.getLookAtDir();
 }
 
 //--------------------------------------------------------------
@@ -102,7 +128,10 @@ void ofApp::update(){
         float x = -2000;
         float y = 1000;
         ofVec3f offset = ofVec3f(x, y, 0.01);
-        ofVec2f size = addVerse(toUpperCase(Xanadu), offset);
+        ofVec2f size = addVerse(toUpperCase(allMyPeople), offset);
+        for(int i = 0; i < words.size(); i++) {
+            cout<<words[i].text;
+        }
 //        cam.setPosition(offset.x + size.x/2, offset.y - size.y/2, 2000);
 //        cam.lookAt(ofVec3f(offset.x + size.x/2, offset.y - size.y/2, 0));
     }
@@ -111,21 +140,26 @@ void ofApp::update(){
 
     slide += 3;
     
-    if(slide > 2000) {
+    if(slide > 10000) {
         slide = -1000;
     }
+    
     for(int i = 0; i < words.size(); i++) {
-        words[i].update();
+        words[i].update(0, slide);
     }
     
     camPosition.interpolate(camPositions[camIndex], 0.1);
     camLookAt.interpolate(camLookAts[camIndex], 0.1);
     camUpVector.interpolate(camUpVectors[camIndex], 0.1);
-
-    cam.setPosition(camPosition);
-    cam.lookAt(camLookAt, camUpVector);
-
     
+    ofColor c1New = c1.get();
+    ofColor c2New = c2.get();
+    c1.set(c1New.lerp(colorPairs[colorIndex].first, 0.1));
+    c2.set(c2New.lerp(colorPairs[colorIndex].second, 0.1));
+
+//    cam.setPosition(camPosition);
+//    cam.lookAt(camLookAt, camUpVector);
+
 //    cam.setPosition(0, -1000, 3300);
 
 }
@@ -134,30 +168,32 @@ void ofApp::update(){
 void ofApp::draw(){
     
     ofEnableDepthTest();
-//    buffer.clear();
     buffer.begin();
     ofClear(0, 0, 0, 0);
     cam.begin();
     ofBackground(frontColor);
     
     ofPushMatrix();
+    int num = 0;
     for(int i = 0; i < words.size(); i++) {
+//        p.p.y = slide;
         ofMatrix4x4 m = words[i].draw(0, slide);
-        if(words[i].theta > 0) {
+        if(words[i].theta > 0.1) {
+            num++;
             shadow.begin();
             shadow.setUniform3f("planeCenter", p.p);
             shadow.setUniform3f("planeNormal", p.n);
             shadow.setUniform3f("lightPos", lightSource.get());
             shadow.setUniformMatrix4f("rotationMatrix", m);
-            ofSetColor(255);
+            ofSetColor(0, 255, 0);
+            ofPushMatrix();
             ofTranslate(0, slide);
+            ofTranslate(words[i].offset);
             words[i].mesh.draw();
-            ofTranslate(0, -slide);
+            ofPopMatrix();
+
             shadow.end();
         }
-
-        
-        words[i].draw(0, slide);
     }
     
     ofPopMatrix();
@@ -167,19 +203,15 @@ void ofApp::draw(){
     buffer.end();
     
     ofDisableDepthTest();
-    
     gradient.begin();
     gradient.setUniformTexture("inputTexture", buffer.getTexture(), 0);
     gradient.setUniform2f("resolution", ofVec2f(ofGetWidth(), ofGetHeight()));
     gradient.setUniform3f("col1", ofVec3f(c1.get().r/255.0, c1.get().g/255.0, c1.get().b/255.0));
     gradient.setUniform3f("col2", ofVec3f(c2.get().r/255.0, c2.get().g/255.0, c2.get().b/255.0));
     ofDrawRectangle(0, 0, ofGetWidth(), ofGetHeight());
-    ofSetColor(0, 255, 0);
-    ofDrawCircle(0, 0, 500);
     gradient.end();
-//
+
 //    buffer.draw(0, 0);
-//
     gui.draw();
     
     ofDrawBitmapStringHighlight(ofToString(ofGetFrameRate()), ofGetWidth()-100, ofGetHeight()-10);
@@ -212,11 +244,16 @@ ofVec2f ofApp::addVerse(string text, ofVec3f offset) {
 //--------------------------------------------------------------
 ofVec2f ofApp::addLine(string text, ofVec3f offset) {
     float kerning = 100;
+
     ofVec3f initialOffset = offset;
     for(int i = 0; i < text.size(); i++) {
         FlipText word;
         word.font = &font;
         word.color = frontColor;
+        if(text[i] == 'I')
+            kerning = 40;
+        else
+            kerning = 100;
         word.init(string(1, text[i]), offset, i * 0.05);
         offset.x += kerning;
         words.push_back(word);
@@ -243,37 +280,62 @@ ofVec3f ofApp::planeLineIntersection(Plane p, Line l) {
 
 //--------------------------------------------------------------
 void ofApp::keyPressed(int key){
+    if(key =='a') {
+        for(int i = 0; i < words.size(); i++) {
+            words[i].setActive(!words[i].active);
+        }
+    }
     if(key == ' ') {
-        camPositions.push_back(cam.getPosition());
-        camUpVectors.push_back(cam.getUpDir());
-        camLookAts.push_back(cam.getLookAtDir());
+        pair<ofColor, ofColor> colPair = make_pair(c1, c2);
+        colorPairs.push_back(colPair);
+//        camPositions.push_back(cam.getPosition());
+//        camUpVectors.push_back(cam.getUpDir());
+//        camLookAts.push_back(cam.getLookAtDir());
     }
     if(key == 'n') {
         camIndex = ofRandom(0, camPositions.size());
+        colorIndex = ofRandom(0, colorPairs.size());
     }
     if(key == 's') {
-        cameraSettings.clear();
-        for(int i = 0; i < camPositions.size(); i++) {
-            cameraSettings.addTag("position");
-            cameraSettings.pushTag("position", i);
-            cameraSettings.addValue("X", camPositions[i].x);
-            cameraSettings.addValue("Y", camPositions[i].y);
-            cameraSettings.addValue("Z", camPositions[i].z);
-            cameraSettings.popTag();
-            cameraSettings.addTag("upDir");
-            cameraSettings.pushTag("upDir", i);
-            cameraSettings.addValue("X", camUpVectors[i].x);
-            cameraSettings.addValue("Y", camUpVectors[i].y);
-            cameraSettings.addValue("Z", camUpVectors[i].z);
-            cameraSettings.popTag();
-            cameraSettings.addTag("LookAt");
-            cameraSettings.pushTag("LookAt", i);
-            cameraSettings.addValue("X", camLookAts[i].x);
-            cameraSettings.addValue("Y", camLookAts[i].y);
-            cameraSettings.addValue("Z", camLookAts[i].z);
-            cameraSettings.popTag();
+        colorSettings.clear();
+        for(int i = 0; i < colorPairs.size(); i++) {
+            colorSettings.addTag("color");
+            colorSettings.pushTag("color", i);
+            colorSettings.addValue("R", colorPairs[i].first.r);
+            colorSettings.addValue("G", colorPairs[i].first.g);
+            colorSettings.addValue("B", colorPairs[i].first.b);
+            colorSettings.popTag();
+            i++;
+            colorSettings.addTag("color");
+            colorSettings.pushTag("color", i);
+            colorSettings.addValue("R", colorPairs[i].second.r);
+            colorSettings.addValue("G", colorPairs[i].second.g);
+            colorSettings.addValue("B", colorPairs[i].second.b);
+            colorSettings.popTag();
         }
-        cameraSettings.saveFile("settings/cameraSettings.xml");
+        colorSettings.saveFile("settings/colorSettings.xml");
+//        cameraSettings.clear();
+//        for(int i = 0; i < camPositions.size(); i++) {
+//            cameraSettings.addTag("position");
+//            cameraSettings.pushTag("position", i);
+//            cameraSettings.addValue("X", camPositions[i].x);
+//            cameraSettings.addValue("Y", camPositions[i].y);
+//            cameraSettings.addValue("Z", camPositions[i].z);
+//            cameraSettings.popTag();
+//            cameraSettings.addTag("upDir");
+//            cameraSettings.pushTag("upDir", i);
+//            cameraSettings.addValue("X", camUpVectors[i].x);
+//            cameraSettings.addValue("Y", camUpVectors[i].y);
+//            cameraSettings.addValue("Z", camUpVectors[i].z);
+//            cameraSettings.popTag();
+//            cameraSettings.addTag("LookAt");
+//            cameraSettings.pushTag("LookAt", i);
+//            cameraSettings.addValue("X", camLookAts[i].x);
+//            cameraSettings.addValue("Y", camLookAts[i].y);
+//            cameraSettings.addValue("Z", camLookAts[i].z);
+//            cameraSettings.popTag();
+//        }
+//        cameraSettings.saveFile("settings/cameraSettings.xml");
     }
 }
 

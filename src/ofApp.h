@@ -41,10 +41,11 @@ class ofApp : public ofBaseApp{
         vector<ofVec3f> camPositions;
         vector<ofVec3f> camUpVectors;
         vector<ofVec3f> camLookAts;
+        vector<pair<ofColor, ofColor>> colorPairs;
     
         ofVec3f camPosition, camUpVector, camLookAt;
         
-        ofxXmlSettings cameraSettings;
+        ofxXmlSettings cameraSettings, colorSettings;
     
         ofMesh shadowMesh;
 
@@ -56,6 +57,7 @@ class ofApp : public ofBaseApp{
     
         int lineIndex = 0;
         int camIndex = 0;
+        int colorIndex = 0;
     
         int slide;
     

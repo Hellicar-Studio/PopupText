@@ -19,10 +19,11 @@
 class FlipText {
 public:
     void init(string _text, ofVec3f _offset, float _delay);
-    void update();
+    void update(float x, float y);
     ofMatrix4x4 draw(float x, float y);
     ofVec3f rotatePointAboutVector(float theta, ofVec3f p, ofVec3f p1, ofVec3f p2);
     ofMatrix4x4 getRotationMatrix(float theta, ofVec3f p1, ofVec3f p2);
+    void setActive(bool b);
     
     float delay;
     
@@ -35,8 +36,9 @@ public:
     ofTrueTypeFont* font;
     string text;
         
-    ofParameter<float> theta;
-    float rotationYPos;
+    float theta;
+    float thetaMax;
+    float thetaMin;
     
     ofColor color = ofColor(255);
         

@@ -8,6 +8,8 @@ uniform vec3 planeNormal;
 uniform vec3 lightPos;
 uniform mat4 rotationMatrix;
 
+varying vec3 col;
+
 // struct Plane {
 //     vec3 p;
 //     vec3 n;
@@ -37,7 +39,7 @@ void main() {
     
     vec4 rotP = gl_Vertex * rotationMatrix;
     vec3 p = planeLineIntersection(planeCenter, planeNormal, rotP.xyz - lightPos, rotP.xyz);
-
+    col = p;
     // vec3 p = gl_Vertex.xyz;
     // gl_Position   = gl_ModelViewProjectionMatrix * gl_Vertex;
     vec4 pos = gl_ModelViewProjectionMatrix * vec4(p, gl_Vertex.w);

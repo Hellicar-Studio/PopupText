@@ -15,7 +15,7 @@ void main() {
     
     vec3 tc = texture2DRect(inputTexture, uv * resolution).rgb;
     
-    if(tc.r > 0.99) {
+    if(tc.r > 0.9) {
         tc = mix(col1, col2, vec3(uv.y));
     }
     
