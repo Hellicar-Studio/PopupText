@@ -42,6 +42,8 @@ class ofApp : public ofBaseApp{
         vector<ofVec3f> camUpVectors;
         vector<ofVec3f> camLookAts;
     
+        int camIndex;
+    
         ofxXmlSettings cameraSettings;
     
         ofMesh shadowMesh;

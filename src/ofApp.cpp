@@ -79,6 +79,8 @@ void ofApp::setup(){
         ofLogError("No Camera Settings File Found");
     }
     
+    camIndex = 0;
+    
     
     buffer.allocate(ofGetWidth(), ofGetHeight());
     buffer.getTexture().getTextureData().bFlipTexture = false;
@@ -167,9 +169,9 @@ void ofApp::draw(){
     ofDrawBitmapStringHighlight(ofToString(ofGetFrameRate()), ofGetWidth()-100, ofGetHeight()-10);
     
     stringstream ss;
-    
-    ss << "CamX: " << cam.getPosition().x << " CamY: " << cam.getPosition().y << " CamZ: " << cam.getPosition().z;
-    
+    ss << "CamX: " << cam.getPosition().x << " CamY: " << cam.getPosition().y << " CamZ: " << cam.getPosition().z << endl;
+    ss << "CamUpX: " << cam.getUpDir().x << " CamUpY: " << cam.getUpDir().y << " CamUpZ: " << cam.getUpDir().z << endl;
+    ss << "CamTargetX: " << cam.getLookAtDir().x << " CamTargetY: " << cam.getLookAtDir().y << " CamTargetZ: " << cam.getLookAtDir().z;
     ofDrawBitmapStringHighlight(ss.str(), ofGetWidth()-500, 20);
 }
 
@@ -231,11 +233,14 @@ void ofApp::keyPressed(int key){
         camLookAts.push_back(cam.getLookAtDir());
     }
     if(key == 'n') {
-        int i = ofRandom(0, camPositions.size());
+        camIndex++;
+        camIndex%=camPositions.size();
+        int i = camIndex;//ofRandom(0, camPositions.size());
         cam.setPosition(camPositions[i]);
         cam.lookAt(ofVec3f(0, 0, 0), camUpVectors[i]);
     }
     if(key == 's') {
+        cameraSettings.clear();
         for(int i = 0; i < camPositions.size(); i++) {
             cameraSettings.addTag("position");
             cameraSettings.pushTag("position", i);
