@@ -142,6 +142,8 @@ void ofApp::update(){
     
     if(slide > 8800) {
         slide = -1000;
+        camIndex = ofRandom(0, camPositions.size());
+        colorIndex = ofRandom(0, colorPairs.size());
     }
     
     for(int i = 0; i < words.size(); i++) {
