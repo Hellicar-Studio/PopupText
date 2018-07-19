@@ -118,6 +118,8 @@ void ofApp::setup(){
     camPosition = cam.getPosition();
     camUpVector = cam.getUpDir();
     camLookAt = cam.getLookAtDir();
+    
+    showGui = false;
 }
 
 //--------------------------------------------------------------
@@ -208,16 +210,19 @@ void ofApp::draw(){
     gradient.end();
 
 //    buffer.draw(0, 0);
-    gui.draw();
-    
-    ofDrawBitmapStringHighlight(ofToString(ofGetFrameRate()), ofGetWidth()-100, ofGetHeight()-10);
-    
-    stringstream ss;
-    ss << "CamX: " << cam.getPosition().x << " CamY: " << cam.getPosition().y << " CamZ: " << cam.getPosition().z << endl;
-    ss << "CamUpX: " << cam.getUpDir().x << " CamUpY: " << cam.getUpDir().y << " CamUpZ: " << cam.getUpDir().z << endl;
-    ss << "CamTargetX: " << cam.getLookAtDir().x << " CamTargetY: " << cam.getLookAtDir().y << " CamTargetZ: " << cam.getLookAtDir().z <<endl;
-    ss << "Slide: " << slide;
-    ofDrawBitmapStringHighlight(ss.str(), ofGetWidth()-500, 20);
+    if(showGui) {
+        gui.draw();
+        
+        ofDrawBitmapStringHighlight(ofToString(ofGetFrameRate()), ofGetWidth()-100, ofGetHeight()-10);
+        
+        stringstream ss;
+        ss << "CamX: " << cam.getPosition().x << " CamY: " << cam.getPosition().y << " CamZ: " << cam.getPosition().z << endl;
+        ss << "CamUpX: " << cam.getUpDir().x << " CamUpY: " << cam.getUpDir().y << " CamUpZ: " << cam.getUpDir().z << endl;
+        ss << "CamTargetX: " << cam.getLookAtDir().x << " CamTargetY: " << cam.getLookAtDir().y << " CamTargetZ: " << cam.getLookAtDir().z <<endl;
+        ss << "Slide: " << slide;
+        ofDrawBitmapStringHighlight(ss.str(), ofGetWidth()-500, 20);
+    }
+
 }
 
 //--------------------------------------------------------------
@@ -292,6 +297,9 @@ void ofApp::keyPressed(int key){
     if(key == 'n') {
         camIndex = ofRandom(0, camPositions.size());
         colorIndex = ofRandom(0, colorPairs.size());
+    }
+    if(key == 'g') {
+        showGui = !showGui;
     }
     if(key == 's') {
         colorSettings.clear();

@@ -59,6 +59,8 @@ class ofApp : public ofBaseApp{
         int camIndex = 0;
         int colorIndex = 0;
     
+        bool showGui;
+    
         int slide;
     
         vector<FlipText> words;
